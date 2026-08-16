@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nuwora
+      POSTGRES_PASSWORD: nuwora
+      POSTGRES_DB: nuwora
+    ports:
+      - '5432:5432'
+    volumes:
+      - nuwora_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U nuwora -d nuwora']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://nuwora:nuwora@postgres:5432/nuwora?schema=public
+      JWT_SECRET: docker-compose-local-development-secret-not-for-production
+      JWT_EXPIRES_IN: 30d
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+    ports:
+      - '127.0.0.1:3000:3000'
+
+volumes:
+  nuwora_postgres_data:

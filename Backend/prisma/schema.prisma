@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Goal {
+  focus
+  stress_relief
+  memory
+  resilience
+}
+
+enum Wearable {
+  apple_watch
+  oura
+  fitbit
+  whoop
+}
+
+enum ExerciseType {
+  breathing
+  cognitive
+  mindfulness
+  focus
+  journaling
+}
+
+enum CoachPersona {
+  zen_monk
+  peak_performer
+  neuroscientist
+}
+
+enum MessageSender {
+  user
+  coach
+}
+
+enum DailyExerciseStatus {
+  pending
+  completed
+  skipped
+}
+
+model User {
+  id                      String    @id @default(uuid())
+  name                    String?
+  age                     Int?
+  primaryGoals            Goal[]    @default([])
+  connectedWearables      Wearable[] @default([])
+  xp                      Int       @default(0)
+  streakCount             Int       @default(0)
+  lastExerciseCompletedOn DateTime? @db.Date
+  leaderboardAlias        String
+  onboardingCompletedAt   DateTime?
+  email                   String?   @unique
+  passwordHash            String?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  deviceIdentity     DeviceIdentity?
+  assessment         OnboardingAssessment?
+  moodEntries        MoodEntry[]
+  dailyExercises     DailyUserExercise[]
+  scores             MindFitnessScore[]
+  chatMessages       ChatMessage[]
+  userAchievements   UserAchievement[]
+  processedMutations ProcessedMutation[]
+
+  @@map("users")
+}
+
+model DeviceIdentity {
+  id        String   @id @default(uuid())
+  deviceID  String   @unique
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("device_identities")
+}
+
+model OnboardingAssessment {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers        Int[]
+  overallScore   Int
+  cognitiveScore Int
+  biometricScore Int
+  moodScore      Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("onboarding_assessments")
+}
+
+model Exercise {
+  id              String       @id @default(uuid())
+  title           String
+  subtitle        String
+  type            ExerciseType
+  durationSeconds Int
+  difficulty      Int
+  xpReward        Int
+  isActive        Boolean      @default(true)
+  sortOrder       Int          @default(0)
+  createdAt       DateTime     @default(now())
+
+  dailyExercises DailyUserExercise[]
+
+  @@map("exercises")
+}
+
+model DailyUserExercise {
+  id          String              @id @default(uuid())
+  userId      String
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId  String
+  exercise    Exercise            @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  planDate    DateTime            @db.Date
+  status      DailyExerciseStatus @default(pending)
+  performance Float?
+  completedAt DateTime?
+  skippedAt   DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@unique([userId, exerciseId, planDate])
+  @@index([userId, planDate])
+  @@map("daily_user_exercises")
+}
+
+model MoodEntry {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mood       Int
+  occurredAt DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([userId, occurredAt])
+  @@map("mood_entries")
+}
+
+model MindFitnessScore {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date           DateTime @db.Date
+  overallScore   Int
+  cognitiveScore Int
+  biometricScore Int
+  moodScore      Int
+  focusSubscore  Int
+  calmSubscore   Int
+  energySubscore Int
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("mind_fitness_scores")
+}
+
+model ChatMessage {
+  id        String         @id @default(uuid())
+  sequence  Int            @default(autoincrement())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  sender    MessageSender
+  persona   CoachPersona?
+  createdAt DateTime       @default(now())
+
+  @@index([userId, sequence])
+  @@map("chat_messages")
+}
+
+model Achievement {
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  iconName     String
+  sortOrder    Int      @default(0)
+  criterionKey String   @unique
+  createdAt    DateTime @default(now())
+
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String      @id @default(uuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  unlockedAt    DateTime    @default(now())
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model ProcessedMutation {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientMutationID String
+  mutationType     String
+  responseBody     Json?
+  createdAt        DateTime @default(now())
+
+  @@unique([userId, clientMutationID])
+  @@map("processed_mutations")
+}

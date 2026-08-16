@@ -1,0 +1,64 @@
+# Xcode user-specific
+**/xcuserdata/
+**/*.xcuserstate
+
+# Build artifacts
+DerivedData/
+.derivedData/
+.xcode-derived-data/
+build/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# SwiftPM
+.build/
+.swiftpm/
+
+# macOS
+.DS_Store
+
+# Claude Code local worktrees and session artifacts
+.claude/
+CLAUDE.md
+
+# Secrets and private config
+.env
+.env.*
+*.local.env
+*.secrets
+secrets.*
+credentials.*
+*.token
+*.apikey
+*.private
+
+# Certificates, keys, and signing artifacts
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+*.cer
+*.crt
+*.jks
+*.keystore
+*.mobileprovision
+*.provisionprofile
+
+# Common mobile/backend secret files
+GoogleService-Info.plist
+google-services.json
+service-account*.json
+firebase*service*.json
+auth*.json
+
+# Local-only Xcode config overrides
+*.local.xcconfig
+Secrets.xcconfig

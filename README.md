@@ -12,6 +12,10 @@
   <img src="https://img.shields.io/badge/PostgreSQL-16%2B-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
 </p>
 
+<p align="center">
+  <strong>Authors:</strong> Dimitrije Milenković · Nemanja Vidić · Stevan Stojanović
+</p>
+
 Nuwora is a daily Mind Gym: an iOS app for training focus, regulating stress,
 and building cognitive resilience. The repository contains both the SwiftUI iOS
 client and its Node.js REST API.
@@ -218,3 +222,13 @@ future work.
   <img src="Nuwora-Mobile-main/docs/assets/nuwora-logo.png" alt="Nuwora logo" width="96" />
 </p>
 <p align="center"><strong>Train calm. Build focus. Stay resilient.</strong></p>
+
+---
+
+## Authors
+
+| Name | Role |
+|---|---|
+| **Dimitrije Milenković** | Mobile (iOS/SwiftUI) & Backend Architecture |
+| **Nemanja Vidić** | Backend & ML |
+| **Stevan Stojanović** | Backend |
